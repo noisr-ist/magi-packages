@@ -22,7 +22,7 @@ class Api:
         response.raise_for_status()  # Raise an exception if the request failed
         return response
       
-    def get_numbers(self, count) -> list:
+    def generate(self, count) -> list:
         """Get a list of random numbers from the API."""
         try:
             response = self.__post('generate', {"count": count}, headers={'Content-Type': 'application/json'})
