@@ -26,10 +26,8 @@ class Api:
         """Get a list of random numbers from the API."""
         try:
             response = self.__post('generate', {"count": count}, headers={'Content-Type': 'application/json'})
-            numbers = response.json()['numbers']
             # Convert binary numbers to decimal
-            decimal_numbers = [int(num, 2) for num in numbers]
-            return decimal_numbers
+            return response.json()
         except requests.HTTPError:
             print('HTTP error occurred while getting numbers')
         except requests.ConnectionError:

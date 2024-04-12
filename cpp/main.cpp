@@ -2,11 +2,8 @@
 #include "MAGI/Api.h"
 
 int main() {
-    /*cpr::Response r = cpr::Post(cpr::Url{"https://api.noisr.pt/generate"},
-                                 cpr::Body("{\"count\": 5}"),
-                                 cpr::Header{{"Content-Type", "application/json"}});
-    std::cout << r.text << std::endl; // Print the response text*/
     Api api;
-    std::cout << api.generate(5) << std::endl;
+    int n = std::stoi(api.generate(5)["numbers"][0].get<std::string>(), nullptr, 2);
+    std::cout << n << std::endl;
     return 0;
 }

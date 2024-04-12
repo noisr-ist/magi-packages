@@ -3,12 +3,15 @@
 #define API_H
 
 #include <string>
+#include <vector>
+#include <nlohmann/json.hpp>
 
+using json = nlohmann::json;
 
 class Api {
     public:
         Api();
-        std::string generate(int count);
+        json generate(int count);
     private:
         std::string url = "https://api.noisr.pt";
 };
