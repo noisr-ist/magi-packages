@@ -1,8 +1,34 @@
-# How to use the API in C++
+# How to use the MAGI Packages
 
 ## Introduction
 
-Installation of needed packages and libraries is required to use the API in C++. The following steps will guide you through the process.7
+The MAGI packages are pieces of code that ease the utilization of the noisr API. They are written in Python and C++ (for the moment) and are available on the magi-packages GitHub repository.
+
+## Installation
+
+To install the MAGI packages, you need to clone the repository and install the required dependencies. The following steps will guide you through the installation process.
+
+### Cloning the repository
+
+To clone the repository, you need to run the following command:
+
+```bash
+git clone https://github.com/noisr-ist/magi-packages.git
+```
+
+### Installing the dependencies
+
+The only required dependencies are the requests and numpy Python packages. To install them, you need to run the following command:
+
+```bash
+pip install requests numpy
+```
+
+If you want to use the C++ packages, you need to have the g++ compiler installed on your system and the required libraries:
+
+#### CPR
+
+To install the [CPR library](https://github.com/libcpr/cpr) , you need to run the following commands:
 
 ```bash
 sudo apt-get install libcurl4-openssl-dev libjsoncpp-dev
@@ -12,108 +38,51 @@ cmake .
 make
 sudo make install
 ```
-<div style="page-break-after: always;"></div>
+
+#### nlohmann/json
+
+To install the [nlohmann/json](https://github.com/nlohmann/json) library, you need to run the following commands:
+
+```bash
+git clone https://github.com/nlohmann/json.git
+cd json
+mkdir build
+cd build
+cmake ..
+make
+sudo make install
+```
+
 ## Usage
 
-API.cpp:
+To use the MAGI packages, you need to import the desired package in your code. The following code snippet shows how to import the Python package:
 
-```cpp
-#include "API.h"
-#include <sstream>
-#include <stdexcept>
-#include <iostream>
+```python
+from MAGI import Api
 
-API::API(const std::string& url) : base_url(url) {}
+api = Api()
 
-cpr::Response API::get(const std::string& endpoint, const cpr::Parameters& params) {
-    cpr::Response response = cpr::Get(cpr::Url{base_url + "/" + endpoint}, params);
-    if (response.status_code != 200) {
-        throw std::runtime_error("Failed to connect to " + base_url);
-    }
-    return response;
-}
-
-cpr::Response API::post(const std::string& endpoint, const Json::Value& data, const cpr::Header& headers) {
-    std::string payload_string = Json::writeString(Json::StreamWriterBuilder(), data);
-    cpr::Response response = cpr::Post(cpr::Url{base_url + "/" + endpoint}, cpr::Body{payload_string}, headers);
-    if (response.status_code != 200) {
-        throw std::runtime_error("Failed to connect to " + base_url);
-    }
-    return response;
-}
-
-std::string API::repr() {
-    try {
-        get("");
-        return "Connected to " + base_url;
-    } catch (std::runtime_error&) {
-        return "Failed to connect to " + base_url;
-    }
-}
-
-std::vector<int> API::get_numbers(int count, int bits) {
-    try {
-        Json::Value payload;
-        payload["count"] = count;
-        payload["bits"] = bits;
-        cpr::Response response = post("generate", payload, cpr::Header{{"Content-Type", "application/json"}});
-        Json::Value jsonData;
-        Json::CharReaderBuilder jsonReader;
-        std::string errors;
-        std::istringstream iss(response.text);
-        if (!Json::parseFromStream(jsonReader, iss, &jsonData, &errors)) {
-            throw std::runtime_error("Failed to parse JSON response!");
-        }
-        std::vector<int> decimal_numbers;
-        for (const auto& num : jsonData["numbers"]) {
-            decimal_numbers.push_back(std::stoi(num.asString(), nullptr, 2));
-        }
-        return decimal_numbers;
-    } catch (std::runtime_error&) {
-        std::cerr << "HTTP error occurred while getting numbers" << std::endl;
-        return {};
-    }
-}
+print(api.generate(<number of 8bit numbers>))
 ```
-<div style="page-break-after: always;"></div>
-API.h:
+
+To use the C++ packages, you need to include the desired header file in your code. The following code snippet shows how to include the C++ package:
 
 ```cpp
-#include <string>
-#include <vector>
-#include <jsoncpp/json/json.h>
-#include <cpr/cpr.h>
-
-class API {
-private:
-    std::string base_url;
-
-    cpr::Response get(const std::string& endpoint, const cpr::Parameters& params = cpr::Parameters{});
-    cpr::Response post(const std::string& endpoint, const Json::Value& data, const cpr::Header& headers);
-
-public:
-    API(const std::string& url);
-    std::string repr();
-    std::vector<int> get_numbers(int count, int bits = 8);
-};
-```
-<div style="page-break-after: always;"></div>
-main.cpp:
-
-```cpp
-#include "API.h"
-#include <iostream>
+#include "MAGI/Api.h"
 
 int main() {
-    API api("http://api.noisr.pt");
-    std::vector<int> numbers = api.get_numbers(5);
-    for (int num : numbers) {
-        std::cout << num << std::endl;
-    }
+    Api api;
+
+    std::cout << api.generate(<number of 8bit numbers>) << std::endl;
+
     return 0;
 }
 ```
-Compile and run the program:
+
+To compile the C++ code, you need to run the following command:
 
 ```bash
-g++ -std=c++17 main.cpp API.cpp -lcpr -lcurl -ljsoncpp -o noisr.exe
+g++ MAGI/Api.cpp <source file> -o <output file> -lcpr
+```
+
+There are example uses of the packages in the examples directory of the repository.

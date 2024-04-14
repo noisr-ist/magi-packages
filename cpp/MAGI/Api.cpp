@@ -11,8 +11,5 @@ json Api::generate(int count) {
                                  cpr::Header{{"Content-Type", "application/json"}});
 
     json j = nlohmann::json::parse(r.text);
-
-
-    
     return j;
 }
